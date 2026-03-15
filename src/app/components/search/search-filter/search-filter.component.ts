@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter, OnInit, OnDestroy } from '@angular/core';
+import { Component, Output, EventEmitter, OnInit, OnDestroy, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -177,12 +177,13 @@ export class SearchFilterComponent implements OnInit, OnDestroy {
   };
 
   private searchSubject = new Subject<string>();
+  private cdr = inject(ChangeDetectorRef);
 
   constructor(private toyService: ToyService) {}
 
   ngOnInit(): void {
-    this.toyService.getTypes().subscribe(t => this.types = t);
-    this.toyService.getAgeGroups().subscribe(ag => this.ageGroups = ag);
+    this.toyService.getTypes().subscribe(t => { this.types = t; this.cdr.markForCheck(); });
+    this.toyService.getAgeGroups().subscribe(ag => { this.ageGroups = ag; this.cdr.markForCheck(); });
 
     this.searchSubject.pipe(
       debounceTime(300),

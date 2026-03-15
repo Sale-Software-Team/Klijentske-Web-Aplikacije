@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -211,6 +211,7 @@ export class RegisterComponent implements OnInit {
   toyTypes: ToyType[] = [];
   selectedTypes: string[] = [];
   hidePassword = true;
+  private cdr = inject(ChangeDetectorRef);
 
   constructor(
     private fb: FormBuilder,
@@ -233,7 +234,7 @@ export class RegisterComponent implements OnInit {
       confirmPassword: ['', Validators.required]
     }, { validators: this.passwordMatchValidator });
 
-    this.toyService.getTypes().subscribe(types => this.toyTypes = types);
+    this.toyService.getTypes().subscribe(types => { this.toyTypes = types; this.cdr.markForCheck(); });
   }
 
   passwordMatchValidator(control: AbstractControl): ValidationErrors | null {

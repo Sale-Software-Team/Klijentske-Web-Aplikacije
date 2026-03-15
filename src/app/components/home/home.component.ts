@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -244,14 +244,27 @@ export class HomeComponent implements OnInit {
   toyTypes: ToyType[] = [];
   loading = true;
 
+  private cdr = inject(ChangeDetectorRef);
+
   constructor(private toyService: ToyService) {}
 
   ngOnInit(): void {
-    this.toyService.getAllToys().subscribe(toys => {
-      this.featuredToys = toys.slice(0, 6);
-      this.loading = false;
+    this.toyService.getAllToys().subscribe({
+      next: toys => {
+        this.featuredToys = toys.slice(0, 6);
+        this.loading = false;
+        this.cdr.markForCheck();
+      },
+      error: err => {
+        console.error('Greška pri učitavanju igračaka:', err);
+        this.loading = false;
+        this.cdr.markForCheck();
+      }
     });
-    this.toyService.getTypes().subscribe(types => this.toyTypes = types);
+    this.toyService.getTypes().subscribe(types => {
+      this.toyTypes = types;
+      this.cdr.markForCheck();
+    });
   }
 
   getCategoryIcon(typeName: string): string {

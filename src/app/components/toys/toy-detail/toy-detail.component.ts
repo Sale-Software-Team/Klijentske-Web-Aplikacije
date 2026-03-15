@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -257,6 +257,8 @@ export class ToyDetailComponent implements OnInit {
     reviewerType: 'roditelj' as 'dete' | 'roditelj'
   };
 
+  private cdr = inject(ChangeDetectorRef);
+
   constructor(
     private route: ActivatedRoute,
     public toyService: ToyService,
@@ -273,9 +275,11 @@ export class ToyDetailComponent implements OnInit {
         this.toy = toy;
         this.loading = false;
         this.checkCanReview();
+        this.cdr.markForCheck();
       },
       error: () => {
         this.loading = false;
+        this.cdr.markForCheck();
       }
     });
   }

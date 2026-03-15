@@ -1,0 +1,7 @@
+{
+  "/api": {
+    "target": "https://toy.pequla.com",
+    "secure": true,
+    "changeOrigin": true
+  }
+}

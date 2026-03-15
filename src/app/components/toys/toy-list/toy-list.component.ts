@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
@@ -82,6 +82,8 @@ export class ToyListComponent implements OnInit {
   filteredToys: Toy[] = [];
   loading = true;
 
+  private cdr = inject(ChangeDetectorRef);
+
   constructor(private toyService: ToyService) {}
 
   ngOnInit(): void {
@@ -90,9 +92,11 @@ export class ToyListComponent implements OnInit {
         this.allToys = toys;
         this.filteredToys = toys;
         this.loading = false;
+        this.cdr.markForCheck();
       },
       error: () => {
         this.loading = false;
+        this.cdr.markForCheck();
       }
     });
   }
