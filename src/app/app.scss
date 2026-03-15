@@ -1,0 +1,12 @@
+.app-container {
+  min-height: 100vh;
+}
+
+.mobile-nav {
+  width: 280px;
+  background: var(--bg);
+}
+
+.page-content {
+  min-height: calc(100vh - 180px);
+}

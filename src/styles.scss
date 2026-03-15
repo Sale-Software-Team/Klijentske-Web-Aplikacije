@@ -1,0 +1,259 @@
+@use "@angular/material" as mat;
+
+// ============================================================
+// Claymorphism Design System - IgrackaShop
+// ============================================================
+
+:root {
+  // Primary palette
+  --peach: #FDBCB4;
+  --baby-blue: #ADD8E6;
+  --mint: #98FF98;
+  --lilac: #E6E6FA;
+  --bg: #FFF8F5;
+  --white: #FFFFFF;
+
+  // Text
+  --text-primary: #2D2D2D;
+  --text-secondary: #5A5A5A;
+  --text-light: #8A8A8A;
+
+  // Status
+  --status-reserved: #FDBCB4;
+  --status-arrived: #98FF98;
+  --status-cancelled: #D3D3D3;
+
+  // Clay
+  --clay-radius: 20px;
+  --clay-border: 3px solid rgba(0, 0, 0, 0.08);
+  --clay-shadow: 8px 8px 16px rgba(0, 0, 0, 0.1), -4px -4px 12px rgba(255, 255, 255, 0.8);
+  --clay-shadow-hover: 10px 10px 20px rgba(0, 0, 0, 0.12), -6px -6px 16px rgba(255, 255, 255, 0.9);
+  --clay-shadow-inset: inset 4px 4px 8px rgba(0, 0, 0, 0.06), inset -2px -2px 6px rgba(255, 255, 255, 0.7);
+}
+
+// ============================================================
+// Angular Material Theme
+// ============================================================
+html {
+  height: 100%;
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$rose-palette,
+        tertiary: mat.$violet-palette,
+      ),
+      typography: Nunito,
+      density: 0,
+    )
+  );
+}
+
+body {
+  color-scheme: light;
+  background-color: var(--bg);
+  color: var(--text-primary);
+  font-family: 'Nunito', sans-serif;
+  margin: 0;
+  height: 100%;
+}
+
+// ============================================================
+// Clay Mixin
+// ============================================================
+@mixin clay($bg-color: var(--white)) {
+  background: $bg-color;
+  border-radius: var(--clay-radius);
+  border: var(--clay-border);
+  box-shadow: var(--clay-shadow);
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+@mixin clay-hover {
+  box-shadow: var(--clay-shadow-hover);
+  transform: translateY(-3px);
+}
+
+@mixin clay-inset {
+  box-shadow: var(--clay-shadow-inset);
+  border-radius: var(--clay-radius);
+  border: var(--clay-border);
+}
+
+// ============================================================
+// Typography
+// ============================================================
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Fredoka', sans-serif;
+  color: var(--text-primary);
+}
+
+h1 { font-size: 2.5rem; font-weight: 600; }
+h2 { font-size: 2rem; font-weight: 500; }
+h3 { font-size: 1.5rem; font-weight: 500; }
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+// ============================================================
+// Angular Material Overrides - Claymorphism
+// ============================================================
+
+// Cards
+.mat-mdc-card {
+  @include clay;
+  padding: 0;
+
+  &:hover {
+    @include clay-hover;
+  }
+}
+
+// Buttons
+.mat-mdc-raised-button,
+.mat-mdc-unelevated-button {
+  border-radius: 14px !important;
+  font-family: 'Fredoka', sans-serif !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.5px !important;
+}
+
+.clay-btn {
+  @include clay;
+  cursor: pointer;
+  padding: 10px 24px;
+  font-family: 'Fredoka', sans-serif;
+  font-weight: 500;
+  font-size: 1rem;
+  border: var(--clay-border);
+  background: var(--peach);
+  color: var(--text-primary);
+
+  &:hover {
+    @include clay-hover;
+  }
+
+  &.blue { background: var(--baby-blue); }
+  &.mint { background: var(--mint); }
+  &.lilac { background: var(--lilac); }
+}
+
+// Toolbar
+.mat-toolbar {
+  @include clay;
+  border-radius: 0 0 var(--clay-radius) var(--clay-radius);
+}
+
+// Dialog
+.mat-mdc-dialog-container .mdc-dialog__surface {
+  border-radius: var(--clay-radius) !important;
+  border: var(--clay-border);
+  box-shadow: var(--clay-shadow) !important;
+}
+
+// Form fields
+.mat-mdc-form-field {
+  .mdc-text-field--outlined .mdc-notched-outline > * {
+    border-radius: 14px;
+  }
+}
+
+// Snackbar
+.mat-mdc-snack-bar-container .mdc-snackbar__surface {
+  border-radius: 14px !important;
+}
+
+// Chips
+.mat-mdc-chip {
+  border-radius: 14px !important;
+}
+
+// ============================================================
+// Utility classes
+// ============================================================
+.container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 24px;
+
+  @media (max-width: 768px) {
+    padding: 0 16px;
+  }
+}
+
+.page-content {
+  min-height: calc(100vh - 180px);
+  padding: 24px 0;
+}
+
+.clay-card {
+  @include clay;
+  padding: 24px;
+}
+
+.clay-card-hover {
+  @include clay;
+  padding: 24px;
+  cursor: pointer;
+
+  &:hover {
+    @include clay-hover;
+  }
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+
+  &.rezervisano { background: var(--status-reserved); }
+  &.pristiglo { background: var(--status-arrived); }
+  &.otkazano { background: var(--status-cancelled); }
+}
+
+// ============================================================
+// Responsive grid
+// ============================================================
+.toy-grid {
+  display: grid;
+  gap: 24px;
+  grid-template-columns: repeat(3, 1fr);
+
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ============================================================
+// Animations
+// ============================================================
+@keyframes bounce-in {
+  0% { transform: scale(0.9); opacity: 0; }
+  60% { transform: scale(1.02); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.bounce-in {
+  animation: bounce-in 0.4s ease-out;
+}
+
+// Scrollbar styling
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--peach);
+  border-radius: 4px;
+}
