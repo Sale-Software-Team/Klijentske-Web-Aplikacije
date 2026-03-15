@@ -1,5 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { Toy } from '../../../models/toy.model';
@@ -18,7 +19,7 @@ import { SearchFilterComponent, FilterCriteria } from '../../search/search-filte
     <div class="container page-content">
       <h1>Igračke</h1>
 
-      <app-search-filter (filterChange)="onFilterChange($event)"></app-search-filter>
+      <app-search-filter [initialType]="initialType" (filterChange)="onFilterChange($event)"></app-search-filter>
 
       @if (loading) {
         <div class="loading">
@@ -81,17 +82,34 @@ export class ToyListComponent implements OnInit {
   allToys: Toy[] = [];
   filteredToys: Toy[] = [];
   loading = true;
+  initialType = '';
 
+  private lastCriteria: FilterCriteria | null = null;
   private cdr = inject(ChangeDetectorRef);
+  private route = inject(ActivatedRoute);
 
   constructor(private toyService: ToyService) {}
 
   ngOnInit(): void {
+    this.initialType = this.route.snapshot.queryParams['type'] || '';
+
     this.toyService.getAllToys().subscribe({
       next: toys => {
         this.allToys = toys;
-        this.filteredToys = toys;
         this.loading = false;
+
+        // Apply pending filter or show all
+        if (this.lastCriteria) {
+          this.applyFilter(this.lastCriteria);
+        } else if (this.initialType) {
+          // Filter hasn't arrived yet but we have initialType
+          this.applyFilter({
+            searchTerm: '', type: this.initialType, ageGroup: '',
+            targetGroup: '', minPrice: null, maxPrice: null, sortBy: ''
+          });
+        } else {
+          this.filteredToys = toys;
+        }
         this.cdr.markForCheck();
       },
       error: () => {
@@ -102,6 +120,13 @@ export class ToyListComponent implements OnInit {
   }
 
   onFilterChange(criteria: FilterCriteria): void {
+    this.lastCriteria = criteria;
+    if (this.allToys.length > 0) {
+      this.applyFilter(criteria);
+    }
+  }
+
+  private applyFilter(criteria: FilterCriteria): void {
     let result = [...this.allToys];
 
     if (criteria.searchTerm) {
@@ -121,7 +146,9 @@ export class ToyListComponent implements OnInit {
     }
 
     if (criteria.targetGroup) {
-      result = result.filter(t => t.targetGroup === criteria.targetGroup);
+      result = result.filter(t =>
+        t.targetGroup === criteria.targetGroup || t.targetGroup === 'svi'
+      );
     }
 
     if (criteria.minPrice != null) {
@@ -148,5 +175,6 @@ export class ToyListComponent implements OnInit {
     }
 
     this.filteredToys = result;
+    this.cdr.markForCheck();
   }
 }

@@ -1,10 +1,10 @@
-import { Component, Output, EventEmitter, OnInit, OnDestroy, ChangeDetectorRef, inject } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatButtonToggleModule, MatButtonToggleChange } from '@angular/material/button-toggle';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
@@ -41,7 +41,7 @@ export interface FilterCriteria {
       <div class="filter-row filters">
         <mat-form-field appearance="outline">
           <mat-label>Tip</mat-label>
-          <mat-select [(value)]="filters.type" (selectionChange)="emitFilters()">
+          <mat-select [value]="filters.type" (selectionChange)="onTypeChange($event.value)">
             <mat-option value="">Svi tipovi</mat-option>
             @for (type of types; track type.typeId) {
               <mat-option [value]="type.name">{{ type.name }}</mat-option>
@@ -51,7 +51,7 @@ export interface FilterCriteria {
 
         <mat-form-field appearance="outline">
           <mat-label>Uzrast</mat-label>
-          <mat-select [(value)]="filters.ageGroup" (selectionChange)="emitFilters()">
+          <mat-select [value]="filters.ageGroup" (selectionChange)="onAgeGroupChange($event.value)">
             <mat-option value="">Svi uzrasti</mat-option>
             @for (ag of ageGroups; track ag.ageGroupId) {
               <mat-option [value]="ag.name">{{ ag.name }}</mat-option>
@@ -61,7 +61,7 @@ export interface FilterCriteria {
 
         <mat-form-field appearance="outline">
           <mat-label>Sortiraj</mat-label>
-          <mat-select [(value)]="filters.sortBy" (selectionChange)="emitFilters()">
+          <mat-select [value]="filters.sortBy" (selectionChange)="onSortChange($event.value)">
             <mat-option value="">Podrazumevano</mat-option>
             <mat-option value="price-asc">Cena ↑</mat-option>
             <mat-option value="price-desc">Cena ↓</mat-option>
@@ -72,7 +72,7 @@ export interface FilterCriteria {
       </div>
 
       <div class="filter-row">
-        <mat-button-toggle-group [(value)]="filters.targetGroup" (change)="emitFilters()">
+        <mat-button-toggle-group [value]="filters.targetGroup" (change)="onTargetGroupChange($event)">
           <mat-button-toggle value="">Svi</mat-button-toggle>
           <mat-button-toggle value="dečak">Dečaci</mat-button-toggle>
           <mat-button-toggle value="devojčica">Devojčice</mat-button-toggle>
@@ -161,6 +161,7 @@ export interface FilterCriteria {
   `]
 })
 export class SearchFilterComponent implements OnInit, OnDestroy {
+  @Input() initialType = '';
   @Output() filterChange = new EventEmitter<FilterCriteria>();
 
   types: ToyType[] = [];
@@ -182,6 +183,10 @@ export class SearchFilterComponent implements OnInit, OnDestroy {
   constructor(private toyService: ToyService) {}
 
   ngOnInit(): void {
+    if (this.initialType) {
+      this.filters = { ...this.filters, type: this.initialType };
+    }
+
     this.toyService.getTypes().subscribe(t => { this.types = t; this.cdr.markForCheck(); });
     this.toyService.getAgeGroups().subscribe(ag => { this.ageGroups = ag; this.cdr.markForCheck(); });
 
@@ -189,7 +194,7 @@ export class SearchFilterComponent implements OnInit, OnDestroy {
       debounceTime(300),
       distinctUntilChanged()
     ).subscribe(term => {
-      this.filters.searchTerm = term;
+      this.filters = { ...this.filters, searchTerm: term };
       this.emitFilters();
     });
   }
@@ -203,8 +208,29 @@ export class SearchFilterComponent implements OnInit, OnDestroy {
     this.searchSubject.next(value);
   }
 
+  onTypeChange(value: string): void {
+    this.filters = { ...this.filters, type: value };
+    this.emitFilters();
+  }
+
+  onAgeGroupChange(value: string): void {
+    this.filters = { ...this.filters, ageGroup: value };
+    this.emitFilters();
+  }
+
+  onSortChange(value: string): void {
+    this.filters = { ...this.filters, sortBy: value };
+    this.emitFilters();
+  }
+
+  onTargetGroupChange(event: MatButtonToggleChange): void {
+    this.filters = { ...this.filters, targetGroup: event.value };
+    this.emitFilters();
+  }
+
   emitFilters(): void {
     this.filterChange.emit({ ...this.filters });
+    this.cdr.markForCheck();
   }
 
   resetFilters(): void {
